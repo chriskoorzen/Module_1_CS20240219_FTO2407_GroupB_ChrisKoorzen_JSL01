@@ -46,6 +46,65 @@ function validateSyntax() {
     setStatus(status, message);
 }
 
+function alternateValidation() {
+    let input = document.getElementById('petInput').value.trim();   // Get input and clear whitespace
+    let status, message = "";
+
+
+    // Step 1: String is atleast the required minimum length (4 "pet_" + 4 digits + min 1 letter) and starts with "pet_"
+
+    if (input.length > 8 && input.startsWith("pet_")){
+
+        // Step 2: Check if next 4 characters are digits
+        //      We have to check each individual character because while
+        //      something like parseInt("a240") will return NaN,
+        //      something like parseInt("2a14") will return 2, a valid integer.
+
+        const birthYearDigitArray = input.slice(4, 8).split('');
+
+        if (birthYearDigitArray.every( char => { return Number.isInteger(Number.parseInt(char)); } )){
+            
+            // Step 3: Check if the pet name includes any funny characters (non-alphabet).
+
+            //   This is a MASSIVE search space (think foreign character sets like Japanese, Chinese, 
+            //   Indonesian, Hebrew, Arabic, Cyrillic etc. and includes things like emojis) because 
+            //   JavaScript uses the UTF-16 character set natively (65536 possible characters).
+            //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters
+
+            //   However, we can constrict this search space dramatically by confining our search to the
+            //   English alphabet only (sufficient for this challenge).
+            //   Anything that doesn't match fails the test.
+
+            //   Drawing inspiration from the ASCII character set, which is backwards compatible with UTF 
+            //   and includes the entire English alphabet, we only have to check for two (compound) conditions:
+            //   Does the tested character codepoint live between codepoints 65-90 for uppercase letters,
+            //   or 97-122 for lowercase letters (inclusive)?
+            //   https://www.ascii-code.com/
+            
+            const petNameCharArray = input.slice(8).split('');
+
+            if (petNameCharArray.every( char => { let cp=char.codePointAt(0); return (cp > 64 && cp < 91) || (cp > 96 && cp < 123) } )){
+                
+                // Passed all elementary tests
+                status = "success";
+                message = "Your pet's name is: " + petNameCharArray.join("");
+
+            } else {
+                status = "fail";
+            }
+
+        } else {
+            status = "fail";
+        }
+
+    } else {
+        status = "fail";
+    }
+
+
+    setStatus(status, message);
+}
+
 async function setStatus(status, message){
     // Set message
     const statusDisplay = document.getElementById('result');
