@@ -1,3 +1,5 @@
+"use strict";       // "Be tolerant with others, and strict with yourself." - Marcus Aurelius
+
 function validateSyntax() {
     let input = document.getElementById('petInput').value.trim();   // Get input and clear whitespace
     
