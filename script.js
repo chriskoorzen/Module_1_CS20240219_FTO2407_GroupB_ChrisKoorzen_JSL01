@@ -15,8 +15,14 @@ function validateSyntax() {
     //              +   =  match preceding specifier atleast once
     //                     is "greedy", which means it will continue to match as long as specifier is true
     //                     equivalent to {1, }
+    //              $   =  match until the end of input or string. This prevents users from entering any invalid
+    //                     symbols after valid matches - forces the entire input to be compliant.
+    //                     Although the way the function is set up below it could still work without it
+    //                     by discarding invalid inputs, I include it to adhere to the principle of "least surprise" - 
+    //                     That the program does not do intuitively unexpected things.
     
-    const petRegex = /^pet_\d{4}[^\s\d\W_]+/;
+    
+    const petRegex = /^pet_\d{4}[^\s\d\W_]+$/;
 
     let match = input.match(petRegex); // will return null if no match is found
     let status, message = "";
@@ -71,16 +77,21 @@ function alternateValidation() {
             //   This is a MASSIVE search space (think foreign character sets like Japanese, Chinese, 
             //   Indonesian, Hebrew, Arabic, Cyrillic etc. and includes things like emojis) because 
             //   JavaScript uses the UTF-16 character set natively (65536 possible characters).
+
             //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters
 
             //   However, we can constrict this search space dramatically by confining our search to the
             //   English alphabet only (sufficient for this challenge).
             //   Anything that doesn't match fails the test.
 
-            //   Drawing inspiration from the ASCII character set, which is backwards compatible with UTF 
-            //   and includes the entire English alphabet, we only have to check for two (compound) conditions:
+            //   To avoid looping over every letter of the English alphabet (in upper and lowercase),
+            //   we can take advantage of how character sets are represented inside memory: as numbers
+            //   mapped to a graphical representation. 
+
+            //   By reading the character bytecode as an integer, we only have to check for two (compound) conditions:
             //   Does the tested character codepoint live between codepoints 65-90 for uppercase letters,
             //   or 97-122 for lowercase letters (inclusive)?
+            
             //   https://www.ascii-code.com/
             
             const petNameCharArray = input.slice(8).split('');
